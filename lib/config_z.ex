@@ -24,7 +24,7 @@ defmodule ConfigZ do
   ## Arguments
 
   * `:adapter`: Only supports `:config_map`.
-  * `:config_and_callbacks`: The map of config keys and callbacks.
+  * `:callbacks`: The map of config keys and callbacks.
   * For `:config_map` adapter:
     * `:dir`: The path of the directory that mounted config map volume.
   """

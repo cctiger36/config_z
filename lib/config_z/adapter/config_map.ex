@@ -8,7 +8,7 @@ defmodule ConfigZ.Adapter.ConfigMap do
   @behaviour Adapter
 
   @type state :: %{
-          config_and_callbacks: %{String.t() => ConfigZ.callback()},
+          callbacks: %{String.t() => ConfigZ.callback()},
           dir: String.t(),
           watcher_pid: pid
         }
@@ -19,7 +19,7 @@ defmodule ConfigZ.Adapter.ConfigMap do
     FileSystem.subscribe(pid)
 
     %{
-      config_and_callbacks: args[:config_and_callbacks] || %{},
+      callbacks: args[:callbacks] || %{},
       dir: args[:dir],
       watcher_pid: pid
     }
@@ -39,7 +39,7 @@ defmodule ConfigZ.Adapter.ConfigMap do
         %{watcher_pid: watcher_pid} = state
       ) do
     config_name = path_to_config_name(path)
-    callback = state.config_and_callbacks[config_name]
+    callback = state.callbacks[config_name]
     if callback, do: load_config(config_name, callback, state)
     {:noreply, state}
   end

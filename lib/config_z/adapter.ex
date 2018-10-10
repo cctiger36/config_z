@@ -2,7 +2,7 @@ defmodule ConfigZ.Adapter do
   @moduledoc false
 
   @type state :: %{
-          required(:config_and_callbacks) => %{String.t() => ConfigZ.callback()},
+          required(:callbacks) => %{String.t() => ConfigZ.callback()},
           optional(atom) => any
         }
 
@@ -20,7 +20,7 @@ defmodule ConfigZ.Adapter do
       def init(args) do
         state = init_state(args)
 
-        for {config_name, callback} <- state.config_and_callbacks,
+        for {config_name, callback} <- state.callbacks,
             do: load_config(config_name, callback, state)
 
         {:ok, state}
@@ -34,7 +34,7 @@ defmodule ConfigZ.Adapter do
 
       @impl true
       def handle_cast({:watch, config_name, callback}, state) do
-        state = put_in(state.config_and_callbacks[config_name], callback)
+        state = put_in(state.callbacks[config_name], callback)
         load_config(config_name, callback, state)
         {:noreply, state}
       end
