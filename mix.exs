@@ -51,7 +51,7 @@ defmodule ConfigZ.MixProject do
       licenses: ["MIT"],
       links: %{"GitHub" => "https://github.com/cctiger36/config_z"},
       maintainers: ["cctiger36 <cctiger36@gmail.com>"],
-      name: "phoenix_pubsub_redis_z"
+      name: "config_z"
     ]
   end
 
