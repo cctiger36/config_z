@@ -16,6 +16,7 @@ Recently only supports Kubernetes ConfigMap. (See: [Add ConfigMap data to a Volu
 
 Add to your list of dependencies in `mix.exs`:
 ```elixir
+# mix.exs
 def deps do
   [
     {:config_z, "~> 0.1.0"}
@@ -23,42 +24,38 @@ def deps do
 end
 ```
 
-Add to the supervisor tree of your application:
+Ensure `:config_z` is started before your application by adding it to `:extra_applications`.
 ```elixir
-defmodule Your.Application do
-  use Application
-
-  def start(_type, _args) do
-    children = [
-      {ConfigZ, [name: Your.ConfigZ, adapter: :config_map, dir: "/etc/config_map"]}
-    ]
-
-    opts = [strategy: :one_for_one, name: Your.Supervisor]
-    Supervisor.start_link(children, opts)
-  end
+# mix.exs
+def application do
+  [
+    extra_applications: [:config_z, :logger]
+  ]
 end
 ```
 
 ## Usage
 
-Prepares a callback function. For example:
+Prepares callback functions. For example:
 ```elixir
 def callback(value) do
   Application.put_env(:your_application, :your_config, value)
 end
 ```
 
-Then tells ConfigZ to watch it:
+Initializes ConfigZ:
 ```elixir
-ConfigZ.watch(Your.ConfigZ, "YOUR_CONFIG", &callback/1)
+ConfigZ.init(
+  name: Your.ConfigZ,
+  adapter: :config_map,
+  dir: "/etc/config_map",
+  config_and_callbacks: %{"YOUR_CONFIG" => &callback/1}
+)
 ```
 
-The callback function will be called immediately, and also every time the config is changed (created, modified or removed).
+It's best to do this before your supervisor tree is started. The callback function will be called immediately, and also every time the config is changed (created, modified or removed).
 
-Also you can pass the config keys and callbacks when starting the supervisor tree:
+Also you can add config keys and callbacks later:
 ```elixir
-children = [
-  {ConfigZ, [name: Your.ConfigZ, adapter: :config_map, dir: "/etc/config_map",
-             config_and_callbacks: %{"YOUR_CONFIG" => &callback/1}]}
-]
+ConfigZ.watch(Your.ConfigZ, "ANOTHER_CONFIG", &another_callback/1)
 ```

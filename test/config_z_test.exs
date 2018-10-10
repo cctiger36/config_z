@@ -21,7 +21,7 @@ defmodule ConfigZTest do
     dir = "/tmp/config_z_test"
     File.rm_rf(dir)
     File.mkdir(dir)
-    ConfigZ.start_link(name: TestConfigZ, adapter: :config_map, dir: dir)
+    ConfigZ.init(name: TestConfigZ, adapter: :config_map, dir: dir)
     {:ok, %{dir: dir}}
   end
 
