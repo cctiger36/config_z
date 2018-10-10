@@ -45,17 +45,18 @@ end
 
 Initializes ConfigZ:
 ```elixir
-ConfigZ.init(
-  name: Your.ConfigZ,
-  adapter: :config_map,
-  dir: "/etc/config_map",
-  config_and_callbacks: %{"YOUR_CONFIG" => &callback/1}
-)
+:ok =
+  ConfigZ.init(
+    name: Your.ConfigZ,
+    adapter: :config_map,
+    dir: "/etc/config_map",
+    config_and_callbacks: %{"YOUR_CONFIG" => &callback/1}
+  )
 ```
 
 It's best to do this before your supervisor tree is started. The callback function will be called immediately, and also every time the config is changed (created, modified or removed).
 
 Also you can add config keys and callbacks later:
 ```elixir
-ConfigZ.watch(Your.ConfigZ, "ANOTHER_CONFIG", &another_callback/1)
+:ok = ConfigZ.watch(Your.ConfigZ, "ANOTHER_CONFIG", &another_callback/1)
 ```

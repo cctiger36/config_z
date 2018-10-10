@@ -9,10 +9,17 @@ defmodule ConfigZ.WatcherSupervisor do
   @impl true
   def init(_), do: DynamicSupervisor.init(strategy: :one_for_one)
 
-  @spec start_child(keyword) :: DynamicSupervisor.on_start_child()
+  @spec start_child(keyword) :: :ok | {:error, String.t()}
   def start_child(args) do
-    args = Keyword.put(args, :name, watcher_name(args[:name]))
-    DynamicSupervisor.start_child(__MODULE__, {adapter_module(args[:adapter]), args})
+    case validate_adapter_args(args) do
+      :ok ->
+        args = Keyword.put(args, :name, watcher_name(args[:name]))
+        DynamicSupervisor.start_child(__MODULE__, {adapter_module(args[:adapter]), args})
+        :ok
+
+      {:error, reason} ->
+        {:error, reason}
+    end
   end
 
   @spec watcher_name(atom) :: atom
@@ -20,5 +27,14 @@ defmodule ConfigZ.WatcherSupervisor do
 
   @spec adapter_module(atom) :: atom
   defp adapter_module(:config_map), do: ConfigZ.Adapter.ConfigMap
-  defp adapter_module(_), do: raise("Not supported.")
+
+  @spec validate_adapter_args(keyword) :: :ok | {:error, String.t()}
+  defp validate_adapter_args(args) do
+    required_args = apply(adapter_module(args[:adapter]), :required_args, [])
+
+    case required_args -- Keyword.keys(args) do
+      [] -> :ok
+      missing_args -> {:error, "#{Enum.join(missing_args, ", ")} is missing"}
+    end
+  end
 end

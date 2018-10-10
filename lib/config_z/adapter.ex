@@ -6,12 +6,15 @@ defmodule ConfigZ.Adapter do
           optional(atom) => any
         }
 
+  @callback required_args :: [atom]
   @callback init_state(keyword) :: state
   @callback read_config(String.t(), state) :: any
 
   defmacro __using__(_) do
     quote do
       use GenServer
+
+      @behaviour ConfigZ.Adapter
 
       @spec start_link(keyword) :: GenServer.on_start()
       def start_link(args), do: GenServer.start_link(__MODULE__, args, name: args[:name])

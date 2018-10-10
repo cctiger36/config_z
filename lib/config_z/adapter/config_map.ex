@@ -1,17 +1,20 @@
 defmodule ConfigZ.Adapter.ConfigMap do
   @moduledoc false
 
-  alias ConfigZ.Adapter
-
-  use Adapter
-
-  @behaviour Adapter
+  use ConfigZ.Adapter
 
   @type state :: %{
           callbacks: %{String.t() => ConfigZ.callback()},
           dir: String.t(),
           watcher_pid: pid
         }
+
+  def handle_call(:which_children, _from, state) do
+    {:reply, self(), state}
+  end
+
+  @impl true
+  def required_args, do: [:dir]
 
   @impl true
   def init_state(args) do
