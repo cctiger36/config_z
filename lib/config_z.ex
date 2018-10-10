@@ -21,6 +21,11 @@ defmodule ConfigZ do
   @spec init(keyword) :: no_return
   def init(args), do: WatcherSupervisor.start_child(args)
 
+  @spec read(atom, String.t()) :: any
+  def read(name, config_name) do
+    GenServer.call(WatcherSupervisor.watcher_name(name), {:read, config_name})
+  end
+
   @spec watch(atom, String.t(), callback) :: no_return
   def watch(name, config_name, callback) do
     GenServer.cast(WatcherSupervisor.watcher_name(name), {:watch, config_name, callback})

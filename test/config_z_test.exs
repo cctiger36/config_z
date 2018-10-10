@@ -67,4 +67,9 @@ defmodule ConfigZTest do
       assert called(TestApp.callback(nil))
     end
   end
+
+  test "read/2", %{dir: dir} do
+    File.write(dir <> "/CONFIG_5", "value_5")
+    assert ConfigZ.read(TestConfigZ, "CONFIG_5") == "value_5"
+  end
 end
