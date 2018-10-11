@@ -1,6 +1,7 @@
 # ConfigZ
 
 [![Build Status](https://travis-ci.org/cctiger36/config_z.svg?branch=master)](https://travis-ci.org/cctiger36/config_z)
+[![Coverage Status](https://coveralls.io/repos/github/cctiger36/config_z/badge.svg?branch=master)](https://coveralls.io/github/cctiger36/config_z?branch=master)
 
 Runtime configuration for Elixir applications.
 
