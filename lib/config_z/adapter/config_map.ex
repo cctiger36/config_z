@@ -9,10 +9,6 @@ defmodule ConfigZ.Adapter.ConfigMap do
           watcher_pid: pid
         }
 
-  def handle_call(:which_children, _from, state) do
-    {:reply, self(), state}
-  end
-
   @impl true
   def required_args, do: [:dir]
 
