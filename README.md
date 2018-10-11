@@ -19,7 +19,7 @@ Add to your list of dependencies in `mix.exs`:
 # mix.exs
 def deps do
   [
-    {:config_z, "~> 0.1.0"}
+    {:config_z, "~> 0.2.0"}
   ]
 end
 ```
@@ -50,7 +50,9 @@ Initializes ConfigZ:
     name: Your.ConfigZ,
     adapter: :config_map,
     dir: "/etc/config_map",
-    config_and_callbacks: %{"YOUR_CONFIG" => &callback/1}
+    callbacks: %{
+      "YOUR_CONFIG" => &callback/1
+    }
   )
 ```
 
