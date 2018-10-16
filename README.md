@@ -21,7 +21,7 @@ Add to your list of dependencies in `mix.exs`:
 # mix.exs
 def deps do
   [
-    {:config_z, "~> 0.2.0"}
+    {:config_z, "~> 0.2"}
   ]
 end
 ```
