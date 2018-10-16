@@ -3,12 +3,6 @@ defmodule ConfigZ.Adapter.ConfigMap do
 
   use ConfigZ.Adapter
 
-  @type state :: %{
-          callbacks: %{String.t() => ConfigZ.callback()},
-          dir: String.t(),
-          watcher_pid: pid
-        }
-
   @impl true
   def required_args, do: [:dir]
 
@@ -16,12 +10,7 @@ defmodule ConfigZ.Adapter.ConfigMap do
   def init_state(args) do
     {:ok, pid} = FileSystem.start_link(dirs: [args[:dir]])
     FileSystem.subscribe(pid)
-
-    %{
-      callbacks: args[:callbacks] || %{},
-      dir: args[:dir],
-      watcher_pid: pid
-    }
+    %{dir: args[:dir], watcher_pid: pid}
   end
 
   @impl true
@@ -38,8 +27,7 @@ defmodule ConfigZ.Adapter.ConfigMap do
         %{watcher_pid: watcher_pid} = state
       ) do
     config_name = path_to_config_name(path)
-    callback = state.callbacks[config_name]
-    if callback, do: load_config(config_name, callback, state)
+    state = load_config(state, config_name)
     {:noreply, state}
   end
 

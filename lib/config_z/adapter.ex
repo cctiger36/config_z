@@ -3,11 +3,12 @@ defmodule ConfigZ.Adapter do
 
   @type state :: %{
           required(:callbacks) => %{String.t() => ConfigZ.callback()},
+          required(:values) => %{String.t() => any},
           optional(atom) => any
         }
 
   @callback required_args :: [atom]
-  @callback init_state(keyword) :: state
+  @callback init_state(keyword) :: map
   @callback read_config(String.t(), state) :: any
 
   defmacro __using__(_) do
@@ -16,15 +17,25 @@ defmodule ConfigZ.Adapter do
 
       @behaviour ConfigZ.Adapter
 
+      @type state :: ConfigZ.Adapter.state()
+
       @spec start_link(keyword) :: GenServer.on_start()
       def start_link(args), do: GenServer.start_link(__MODULE__, args, name: args[:name])
 
       @impl true
       def init(args) do
-        state = init_state(args)
+        state =
+          args
+          |> init_state()
+          |> Map.merge(%{
+            callbacks: args[:callbacks] || %{},
+            values: %{}
+          })
 
-        for {config_name, callback} <- state.callbacks,
-            do: load_config(config_name, callback, state)
+        state =
+          Enum.reduce(state.callbacks, state, fn {config_name, _}, state ->
+            load_config(state, config_name)
+          end)
 
         {:ok, state}
       end
@@ -37,15 +48,28 @@ defmodule ConfigZ.Adapter do
 
       @impl true
       def handle_cast({:watch, config_name, callback}, state) do
-        state = put_in(state.callbacks[config_name], callback)
-        load_config(config_name, callback, state)
+        state =
+          state
+          |> put_in([:callbacks, config_name], callback)
+          |> load_config(config_name)
+
         {:noreply, state}
       end
 
-      @spec load_config(String.t(), ConfigZ.callback(), state) :: any
-      def load_config(config_name, callback, state) do
-        value = read_config(config_name, state)
-        callback.(value)
+      @spec load_config(state, String.t()) :: state
+      def load_config(state, config_name) do
+        if state.callbacks[config_name] do
+          value = read_config(config_name, state)
+
+          if Map.has_key?(state.values, config_name) and state.values[config_name] === value do
+            state
+          else
+            state.callbacks[config_name].(value)
+            put_in(state.values[config_name], value)
+          end
+        else
+          state
+        end
       end
     end
   end

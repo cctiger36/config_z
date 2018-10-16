@@ -27,10 +27,10 @@ defmodule ConfigZ.Adapter.ConfigMapTest do
     {:ok, %{dir: dir}}
   end
 
-  test "init_state/1" do
+  test "init/1" do
     dir = "/tmp/init_state_test"
-    callbacks = [%{"CONFIG_1" => fn _value -> :noop end}]
-    state = ConfigMap.init_state(dir: dir, callbacks: callbacks)
+    callbacks = %{"CONFIG_1" => fn _value -> :noop end}
+    {:ok, state} = ConfigMap.init(dir: dir, callbacks: callbacks)
     assert state.dir == dir
     assert state.callbacks == callbacks
     assert is_pid(state.watcher_pid)
@@ -81,6 +81,21 @@ defmodule ConfigZ.Adapter.ConfigMapTest do
       File.rm(dir <> "/CONFIG_6")
       wait_until_message_received()
       assert called(TestApp.callback(nil))
+    end
+  end
+
+  test "The callback should not be called if the value is not changed", %{dir: dir} do
+    with_mock_test_app do
+      File.write(dir <> "/CONFIG_7", "value_7")
+      :ok = ConfigZ.watch(TestConfigZ, "CONFIG_7", &TestApp.callback/1)
+      wait_until_message_received()
+      assert called(TestApp.callback("value_7"))
+    end
+
+    with_mock_test_app do
+      File.write(dir <> "/CONFIG_7", "value_7")
+      wait_until_message_received()
+      refute called(TestApp.callback("value_7"))
     end
   end
 end
