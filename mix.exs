@@ -4,8 +4,8 @@ defmodule ConfigZ.MixProject do
   def project do
     [
       app: :config_z,
-      version: "0.2.1",
-      elixir: "~> 1.6",
+      version: "0.3.0",
+      elixir: "~> 1.7",
       start_permanent: Mix.env() == :prod,
       deps: deps(),
       description: description(),
@@ -23,7 +23,10 @@ defmodule ConfigZ.MixProject do
         remove_defaults: [:unknown]
       ],
       test_coverage: [tool: ExCoveralls],
-      preferred_cli_env: [coveralls: :test]
+      preferred_cli_env: [
+        coveralls: :test,
+        "coveralls.travis": :test
+      ]
     ]
   end
 
